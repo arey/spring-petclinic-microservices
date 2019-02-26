@@ -15,8 +15,7 @@
     </parent>
 
     <properties>
-        <docker.exposed.port>8081</docker.exposed.port>
-        <docker.image.dockerfile.dir>${basedir}/../docker</docker.image.dockerfile.dir>
+        <docker.image.exposed.port>8081</docker.image.exposed.port>
     </properties>
 
 	<dependencies>
@@ -96,9 +95,9 @@
                 <build>
                     <plugins>
                         <plugin>
-                            <groupId>com.spotify</groupId>
-                            <artifactId>docker-maven-plugin</artifactId>
-                            <version>${docker.plugin.version}</version>
+                            <groupId>com.google.cloud.tools</groupId>
+                            <artifactId>jib-maven-plugin</artifactId>
+                            <version>${docker.jib-maven-plugin.version}</version>
                         </plugin>
                     </plugins>
                 </build>

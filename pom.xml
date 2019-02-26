@@ -37,10 +37,9 @@
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
 
         <docker.image.prefix>mszarlinski</docker.image.prefix>
-        <docker.image.exposed.port>9090</docker.image.exposed.port>
         <docker.image.dockerfile.dir>${basedir}</docker.image.dockerfile.dir>
         <docker.image.dockerize.version>v0.6.1</docker.image.dockerize.version>
-        <docker.plugin.version>0.4.13</docker.plugin.version>
+        <docker.jib-maven-plugin.version>1.0.0</docker.jib-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -66,8 +65,8 @@
                 <scope>test</scope>
                 <exclusions>
                     <exclusion>
-                    <groupId>junit</groupId>
-                    <artifactId>junit</artifactId>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -146,32 +145,49 @@
                 <pluginManagement>
                     <plugins>
                         <plugin>
-                            <groupId>com.spotify</groupId>
-                            <artifactId>docker-maven-plugin</artifactId>
-                            <version>${docker.plugin.version}</version>
+                            <groupId>com.google.cloud.tools</groupId>
+                            <artifactId>jib-maven-plugin</artifactId>
+                            <version>${docker.jib-maven-plugin.version}</version>
                             <executions>
                                 <execution>
-                                    <phase>install</phase>
+                                    <phase>package</phase>
                                     <goals>
-                                        <goal>build</goal>
+                                        <!-- Build to a local Docker daemon -->
+                                        <goal>dockerBuild</goal>
                                     </goals>
                                 </execution>
                             </executions>
                             <configuration>
-                                <imageName>${docker.image.prefix}/${project.artifactId}</imageName>
-                                <dockerDirectory>${docker.image.dockerfile.dir}</dockerDirectory>
-                                <resources>
-                                    <resource>
-                                        <targetPath>/</targetPath>
-                                        <directory>${project.build.directory}</directory>
-                                        <include>${project.build.finalName}.jar</include>
-                                    </resource>
-                                </resources>
-                                <buildArgs>
-                                    <ARTIFACT_NAME>${project.build.finalName}</ARTIFACT_NAME>
-                                    <EXPOSED_PORT>${docker.image.exposed.port}</EXPOSED_PORT>
-                                    <DOCKERIZE_VERSION>${docker.image.dockerize.version}</DOCKERIZE_VERSION>
-                                </buildArgs>
+                                <from>
+                                    <!-- The openjdk:8-jre-alpine image is not working withwait-for-it.sh -->
+                                    <image>openjdk:8</image>
+                                </from>
+                                <to>
+                                    <image>${docker.image.prefix}/${project.artifactId}</image>
+                                </to>
+                                <container>
+                                    <ports>
+                                        <port>${docker.image.exposed.port}</port>
+                                    </ports>
+                                    <environment>
+                                        <SPRING_PROFILES_ACTIVE>docker</SPRING_PROFILES_ACTIVE>
+                                    </environment>
+                                    <jvmFlags>
+                                        <jvmFlag>-XX:+UnlockExperimentalVMOptions</jvmFlag>
+                                        <jvmFlag>-XX:+UseCGroupMemoryLimitForHeap</jvmFlag>
+                                        <jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
+                                    </jvmFlags>
+                                </container>
+                                <!-- wait-for-it.sh -->
+                                <extraDirectory>
+                                    <path>${project.basedir}/../docker</path>
+                                    <permissions>
+                                        <permission>
+                                            <file>/wait-for-it.sh</file>
+                                            <mode>744</mode> <!-- Read/write/execute for owner, read-only for group/other -->
+                                        </permission>
+                                    </permissions>
+                                </extraDirectory>
                             </configuration>
                         </plugin>
                     </plugins>

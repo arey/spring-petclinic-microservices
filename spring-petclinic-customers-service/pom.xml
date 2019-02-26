@@ -102,9 +102,9 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>com.spotify</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <version>${docker.plugin.version}</version>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <artifactId>jib-maven-plugin</artifactId>
+                        <version>${docker.jib-maven-plugin.version}</version>
                     </plugin>
                 </plugins>
             </build>
